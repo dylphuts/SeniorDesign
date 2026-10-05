@@ -22,11 +22,19 @@ TagManager:
   - QDSUITooltip
   - QDSUIBackplate
   - QDSUIToggleSwitch
+<<<<<<< Updated upstream
   - PassThroughButton
   - PassThrough
   - Locomotion
   - LocoButton
   - LocoText
+=======
+  - Locomotion
+  - LocoButton
+  - LocoText
+  - PassThroughButton
+  - PassThrough
+>>>>>>> Stashed changes
   - QDSUILineDrawing
   - QDSUITextInputField
   - SamplesInfoPanel
