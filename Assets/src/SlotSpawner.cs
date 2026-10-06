@@ -62,12 +62,18 @@ public class SlotSpawner : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        Generate();
+    }
+
     [ContextMenu("Clear Slots")]
     public void Clear()
     {
         var old = breadboard.Find("Slots");
         if (old != null) DestroyImmediate(old.gameObject);
     }
+
 
     void OnDrawGizmosSelected()
     {
