@@ -9,6 +9,7 @@ public class Hole : MonoBehaviour
     void Awake()
     {
         holeRenderer = GetComponent<Renderer>();
+
     }
 
     public void SetGreen(bool green)
