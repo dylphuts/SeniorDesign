@@ -1,86 +1,59 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CircuitManager : MonoBehaviour
 {
-    public BreadboardGenerator breadboard;
+    public SlotSpawner slots;
     public PowerSource powerSource;
 
     void Start()
     {
-        if (breadboard == null)
-        {
-            breadboard = FindAnyObjectByType<BreadboardGenerator>();
-        }
-
-        if (powerSource == null)
-        {
-            powerSource = FindAnyObjectByType<PowerSource>();
-        }
+        if (slots == null) slots = FindAnyObjectByType<SlotSpawner>();
+        if (powerSource == null) powerSource = FindAnyObjectByType<PowerSource>();
 
         UpdateCircuit();
     }
 
     public void UpdateCircuit()
     {
-        if (breadboard == null)
+        if (slots == null)
             return;
 
-        breadboard.ClearRows();
+        slots.ClearPower();
 
-        bool[] powered = new bool[breadboard.rows];
-
-        for (int row = 0; row < breadboard.rows; row++)
-        {
-            if (powerSource != null && powerSource.IsConnectedToRow(row))
-            {
-                powered[row] = true;
-            }
-        }
-
+        var powered = new HashSet<int>();
         Wire[] wires = FindObjectsByType<Wire>();
 
-        for (int i = 0; i < wires.Length; i++)
+        // Nodes touched directly by the power source, or by a wire that touches power.
+        for (int node = 0; node < slots.NodeCount; node++)
         {
-            for (int row = 0; row < breadboard.rows; row++)
+            if (powerSource != null && powerSource.IsConnectedToRow(node))
+                powered.Add(node);
+
+            for (int i = 0; i < wires.Length; i++)
             {
-                if (wires[i].ConnectsPowerToRow(row))
-                {
-                    powered[row] = true;
-                }
+                if (wires[i].ConnectsPowerToRow(node))
+                    powered.Add(node);
             }
         }
 
+        // Spread power through wires until nothing changes.
         bool changed = true;
-
         while (changed)
         {
             changed = false;
 
             for (int i = 0; i < wires.Length; i++)
             {
-                for (int row1 = 0; row1 < breadboard.rows; row1++)
-                {
-                    for (int row2 = 0; row2 < breadboard.rows; row2++)
-                    {
-                        if (powered[row1] && wires[i].ConnectsRows(row1, row2))
-                        {
-                            if (!powered[row2])
-                            {
-                                powered[row2] = true;
-                                changed = true;
-                            }
-                        }
-                    }
-                }
+                if (!wires[i].TryGetRows(out int a, out int b))
+                    continue;
+
+                if (powered.Contains(a) && powered.Add(b)) changed = true;
+                else if (powered.Contains(b) && powered.Add(a)) changed = true;
             }
         }
 
-        for (int row = 0; row < breadboard.rows; row++)
-        {
-            if (powered[row])
-            {
-                breadboard.MakeRowGreen(row);
-            }
-        }
+        foreach (int node in powered)
+            slots.SetNodePowered(node);
     }
 }

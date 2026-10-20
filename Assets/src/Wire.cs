@@ -2,20 +2,10 @@ using UnityEngine;
 
 public class Wire : MonoBehaviour
 {
-    public BreadboardGenerator breadboard;
-
     private Hole firstHole;
     private Hole secondHole;
 
     private bool connectedToPower;
-
-    void Start()
-    {
-        if (breadboard == null)
-        {
-            breadboard = FindAnyObjectByType<BreadboardGenerator>();
-        }
-    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -24,9 +14,7 @@ public class Wire : MonoBehaviour
         if (power != null)
         {
             connectedToPower = true;
-
             Debug.Log("WIRE CONNECTED TO POWER");
-
             UpdateCircuit();
             return;
         }
@@ -57,9 +45,7 @@ public class Wire : MonoBehaviour
         if (power != null)
         {
             connectedToPower = false;
-
             Debug.Log("WIRE DISCONNECTED FROM POWER");
-
             UpdateCircuit();
             return;
         }
@@ -85,6 +71,19 @@ public class Wire : MonoBehaviour
     public bool IsConnectedToPower()
     {
         return connectedToPower;
+    }
+
+    // NEW: gives CircuitManager the two nodes this wire joins.
+    public bool TryGetRows(out int rowA, out int rowB)
+    {
+        rowA = rowB = -1;
+
+        if (firstHole == null || secondHole == null)
+            return false;
+
+        rowA = firstHole.row;
+        rowB = secondHole.row;
+        return true;
     }
 
     public bool ConnectsRows(int row1, int row2)
