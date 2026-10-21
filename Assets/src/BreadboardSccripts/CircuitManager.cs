@@ -24,18 +24,18 @@ public class CircuitManager : MonoBehaviour
         var powered = new HashSet<int>();
         Wire[] wires = FindObjectsByType<Wire>();
 
-        // Nodes touched directly by the power source, or by a wire that touches power.
-        for (int node = 0; node < slots.NodeCount; node++)
-        {
-            if (powerSource != null && powerSource.IsConnectedToRow(node))
-                powered.Add(node);
+        // // Nodes touched directly by the power source, or by a wire that touches power.
+        // for (int node = 0; node < slots.NodeCount; node++)
+        // {
+        //     if (powerSource != null && powerSource.IsConnectedToRow(node))
+        //         powered.Add(node);
 
-            for (int i = 0; i < wires.Length; i++)
-            {
-                if (wires[i].ConnectsPowerToRow(node))
-                    powered.Add(node);
-            }
-        }
+        //     for (int i = 0; i < wires.Length; i++)
+        //     {
+        //         if (wires[i].ConnectsPowerToRow(node))
+        //             powered.Add(node);
+        //     }
+        // }
 
         // Spread power through wires until nothing changes.
         bool changed = true;

@@ -5,6 +5,9 @@ public class Wire : MonoBehaviour
     private Hole firstHole;
     private Hole secondHole;
 
+    public float voltage = 0;
+public Prong positionDriver;
+
     private bool connectedToPower;
 
     void OnTriggerEnter(Collider other)
