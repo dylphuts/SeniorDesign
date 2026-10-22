@@ -2,128 +2,31 @@ using UnityEngine;
 
 public class Wire : MonoBehaviour
 {
-    private Hole firstHole;
-    private Hole secondHole;
+    public Prong prongA;
+    public Prong prongB;
 
-    public float voltage = 0;
-public Prong positionDriver;
-
-    private bool connectedToPower;
-
-    void OnTriggerEnter(Collider other)
+    void Awake()
     {
-        PowerSource power = other.GetComponentInParent<PowerSource>();
-
-        if (power != null)
+        if (prongA == null || prongB == null)
         {
-            connectedToPower = true;
-            Debug.Log("WIRE CONNECTED TO POWER");
-            UpdateCircuit();
-            return;
+            Prong[] prongs = GetComponentsInChildren<Prong>();
+            if (prongs.Length >= 2)
+            {
+                prongA = prongs[0];
+                prongB = prongs[1];
+            }
         }
-
-        Hole hole = other.GetComponentInParent<Hole>();
-
-        if (hole == null)
-            return;
-
-        Debug.Log("WIRE TOUCHED ROW " + hole.row);
-
-        if (firstHole == null)
-        {
-            firstHole = hole;
-        }
-        else if (secondHole == null && hole != firstHole)
-        {
-            secondHole = hole;
-        }
-
-        UpdateCircuit();
     }
 
-    void OnTriggerExit(Collider other)
-    {
-        PowerSource power = other.GetComponentInParent<PowerSource>();
-
-        if (power != null)
-        {
-            connectedToPower = false;
-            Debug.Log("WIRE DISCONNECTED FROM POWER");
-            UpdateCircuit();
-            return;
-        }
-
-        Hole hole = other.GetComponentInParent<Hole>();
-
-        if (hole == null)
-            return;
-
-        if (hole == firstHole)
-        {
-            firstHole = null;
-        }
-
-        if (hole == secondHole)
-        {
-            secondHole = null;
-        }
-
-        UpdateCircuit();
-    }
-
-    public bool IsConnectedToPower()
-    {
-        return connectedToPower;
-    }
-
-    // NEW: gives CircuitManager the two nodes this wire joins.
+    // The two rows this wire joins. False unless BOTH prongs are in holes.
     public bool TryGetRows(out int rowA, out int rowB)
     {
         rowA = rowB = -1;
+        if (prongA == null || prongB == null) return false;
+        if (!prongA.IsSnapped || !prongB.IsSnapped) return false;
 
-        if (firstHole == null || secondHole == null)
-            return false;
-
-        rowA = firstHole.row;
-        rowB = secondHole.row;
+        rowA = prongA.Row;
+        rowB = prongB.Row;
         return true;
-    }
-
-    public bool ConnectsRows(int row1, int row2)
-    {
-        if (firstHole == null || secondHole == null)
-            return false;
-
-        if (firstHole.row == row1 && secondHole.row == row2)
-            return true;
-
-        if (firstHole.row == row2 && secondHole.row == row1)
-            return true;
-
-        return false;
-    }
-
-    public bool ConnectsPowerToRow(int row)
-    {
-        if (!connectedToPower)
-            return false;
-
-        if (firstHole != null && firstHole.row == row)
-            return true;
-
-        if (secondHole != null && secondHole.row == row)
-            return true;
-
-        return false;
-    }
-
-    void UpdateCircuit()
-    {
-        CircuitManager circuit = FindAnyObjectByType<CircuitManager>();
-
-        if (circuit != null)
-        {
-            circuit.UpdateCircuit();
-        }
     }
 }

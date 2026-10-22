@@ -2,18 +2,14 @@ using UnityEngine;
 
 public class Prong : MonoBehaviour
 {
-    public float powerIn = 0;
-    public float powerOut = 0;
-
     public float breakDistance = 0.02f;
     public float liftDistance = 0.01f;
     public float reSnapCooldown = 0.3f;
 
-    public GameObject parent;
+    [Tooltip("The object that moves as a whole (wire root or battery root). Auto-found if empty.")]
+    public Transform bodyRoot;
 
-    public Transform wireRoot;
-
-    private Wire wire;
+    private Prong[] siblings;
     private Rigidbody rb;
     private Hole connectedHole;
     private CircuitManager circuit;
@@ -21,23 +17,32 @@ public class Prong : MonoBehaviour
     private Vector3 snapPosition;
     private float nextSnapTime;
 
+    public bool IsSnapped => snapped;
+    public int Row => connectedHole != null ? connectedHole.row : -1;
+
     void Awake()
     {
-        wire = GetComponentInParent<Wire>();
-        if (wireRoot == null)
-            wireRoot = wire != null ? wire.transform : transform;
-        rb = wireRoot.GetComponent<Rigidbody>();
-        if (transform.parent != null)
+        if (bodyRoot == null)
         {
-            parent = transform.parent.gameObject;
+            Wire wire = GetComponentInParent<Wire>();
+            PowerSource ps = GetComponentInParent<PowerSource>();
+            bodyRoot = wire != null ? wire.transform
+                     : ps != null ? ps.transform
+                     : transform;
         }
+        rb = bodyRoot.GetComponent<Rigidbody>();
+        siblings = bodyRoot.GetComponentsInChildren<Prong>();
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other) { TrySnap(other); }
+    void OnTriggerStay(Collider other)  { TrySnap(other); } // retries after cooldown
+
+    void TrySnap(Collider other)
     {
+        if (snapped || Time.time < nextSnapTime) return;
+
         Hole hole = other.GetComponentInParent<Hole>();
         if (hole == null) return;
-        if (snapped || Time.time < nextSnapTime) return;
 
         Snap(hole);
     }
@@ -50,23 +55,23 @@ public class Prong : MonoBehaviour
         connectedHole = hole;
         snapped = true;
 
-        // First prong in becomes the one that positions the wire.
-        if (wire != null && wire.positionDriver == null)
-        {
-            wire.positionDriver = this;
-            MoveWireSoProngIsAt(snapPosition);
-        }
+        // Only the first snapped prong positions the body.
+        if (IsDriver())
+            MoveBodySoProngIsAt(snapPosition);
 
-        Debug.Log("Prong in Hole " + hole.row + (IsDriver() ? " (driver)" : ""));
+        Debug.Log(name + " snapped into row " + hole.row);
         NotifyCircuit();
     }
 
+    // The first snapped prong on this body is the one that moves it.
     bool IsDriver()
     {
-        return wire == null || wire.positionDriver == this;
+        foreach (Prong p in siblings)
+            if (p.snapped) return p == this;
+        return false;
     }
 
-    void MoveWireSoProngIsAt(Vector3 target)
+    void MoveBodySoProngIsAt(Vector3 target)
     {
         Vector3 offset = target - transform.position;
         if (offset.sqrMagnitude < 1e-10f) return;
@@ -76,21 +81,17 @@ public class Prong : MonoBehaviour
             rb.position += offset;
             if (!rb.isKinematic)
             {
-                rb.linearVelocity = Vector3.zero;   // use rb.velocity on older Unity
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
         }
-        wireRoot.position += offset;
+        bodyRoot.position += offset;
         Physics.SyncTransforms();
     }
 
     void LateUpdate()
     {
         if (!snapped) return;
-
-        // If the driver let go, take over.
-        if (wire != null && wire.positionDriver == null)
-            wire.positionDriver = this;
 
         Vector3 delta = transform.position - snapPosition;
         float sideways = new Vector2(delta.x, delta.z).magnitude;
@@ -102,7 +103,7 @@ public class Prong : MonoBehaviour
         }
 
         if (IsDriver())
-            MoveWireSoProngIsAt(snapPosition);
+            MoveBodySoProngIsAt(snapPosition);
     }
 
     void Release()
@@ -111,16 +112,8 @@ public class Prong : MonoBehaviour
         connectedHole = null;
         nextSnapTime = Time.time + reSnapCooldown;
 
-        if (wire != null && wire.positionDriver == this)
-            wire.positionDriver = null;
-
-        Debug.Log("POWER DISCONNECTED");
+        Debug.Log(name + " released");
         NotifyCircuit();
-    }
-
-    public bool IsConnectedToRow(int row)
-    {
-        return connectedHole != null && connectedHole.row == row;
     }
 
     void NotifyCircuit()
