@@ -9,6 +9,8 @@ public class Prong : MonoBehaviour
     public float liftDistance = 0.01f;
     public float reSnapCooldown = 0.3f;
 
+    public GameObject parent;
+
     public Transform wireRoot;
 
     private Wire wire;
@@ -25,6 +27,10 @@ public class Prong : MonoBehaviour
         if (wireRoot == null)
             wireRoot = wire != null ? wire.transform : transform;
         rb = wireRoot.GetComponent<Rigidbody>();
+        if (transform.parent != null)
+        {
+            parent = transform.parent.gameObject;
+        }
     }
 
     void OnTriggerEnter(Collider other)
