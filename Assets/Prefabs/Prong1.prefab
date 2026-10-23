@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 3080743745979670012}
   - component: {fileID: 5717956314521369696}
   - component: {fileID: 5207434462323217256}
-  - component: {fileID: 5345509117395138765}
   - component: {fileID: 7778486279753293798}
   m_Layer: 0
   m_Name: Prong1
@@ -144,29 +143,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &5345509117395138765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5753614382029766611}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43f86b14a27b52f4f9298c33015b5c26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.Grabbable
-  _transferOnSecondSelection: 0
-  _addNewPointsToFront: 0
-  _forwardElement: {fileID: 0}
-  _oneGrabTransformer: {fileID: 0}
-  _twoGrabTransformer: {fileID: 0}
-  _targetTransform: {fileID: 4458717247365796873}
-  _maxGrabPoints: -1
-  _rigidbody: {fileID: 5207434462323217256}
-  _kinematicWhileSelected: 1
-  _throwWhenUnselected: 1
-  _forceKinematicDisabled: 0
 --- !u!114 &7778486279753293798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,5 +157,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Prong
   breakDistance: 0.02
   liftDistance: 0.01
+  holdTime: 0.15
+  seatDepth: 0.02
   reSnapCooldown: 0.3
   bodyRoot: {fileID: 0}

@@ -100,8 +100,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.6950002, y: 0.123300076, z: 0.05000007}
-  m_Center: {x: -0.3434298, y: 0.59165, z: 0.52494}
+  m_Size: {x: 0.6950002, y: 0.04248905, z: 0.05000007}
+  m_Center: {x: -0.3434298, y: 0.6320555, z: 0.52494}
 --- !u!114 &498561087572207089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,7 +219,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: -0.5, z: 0.5, w: 0.5}
   m_LocalPosition: {x: -0.34592962, y: 0.6283, z: 0.52494}
-  m_LocalScale: {x: -0.05, y: 0.345, z: -0.05}
+  m_LocalScale: {x: -0.05, y: 0.2, z: -0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5413779344482260896}
@@ -385,7 +385,7 @@ Transform:
   m_GameObject: {fileID: 7674609228670701488}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.66492987, y: 0.58, z: 0.52494}
+  m_LocalPosition: {x: -0.53, y: 0.58, z: 0.52494}
   m_LocalScale: {x: -0.05, y: -0.05, z: -0.05}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -535,6 +535,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Prong
   breakDistance: 0.02
   liftDistance: 0.01
+  holdTime: 0.15
+  seatDepth: 0.02
   reSnapCooldown: 0.3
   bodyRoot: {fileID: 0}
 --- !u!1 &8547523576374446073
@@ -642,7 +644,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4458717247365796873, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.020929813
+      value: -0.171
       objectReference: {fileID: 0}
     - target: {fileID: 4458717247365796873, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
       propertyPath: m_LocalPosition.y
