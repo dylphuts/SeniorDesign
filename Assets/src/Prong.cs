@@ -2,8 +2,14 @@ using UnityEngine;
 
 public class Prong : MonoBehaviour
 {
-    public float breakDistance = 0.02f;
-    public float liftDistance = 0.01f;
+    [Header("Grip strength")]
+    public float breakDistance = 0.06f;     // sideways pull to escape
+    public float liftDistance = 0.05f;     // upward pull to escape
+    public float holdTime = 0.15f;     // must stay past the threshold this long
+    public float seatDepth = 0.02f;     // how far a prong can be pushed DOWN into the hole without issue
+
+    private float pullingSince = -1f;
+
     public float reSnapCooldown = 0.3f;
 
     [Tooltip("The object that moves as a whole (wire root or battery root). Auto-found if empty.")]
@@ -35,7 +41,7 @@ public class Prong : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other) { TrySnap(other); }
-    void OnTriggerStay(Collider other)  { TrySnap(other); } // retries after cooldown
+    void OnTriggerStay(Collider other) { TrySnap(other); } // retries after cooldown
 
     void TrySnap(Collider other)
     {
@@ -96,12 +102,26 @@ public class Prong : MonoBehaviour
         Vector3 delta = transform.position - snapPosition;
         float sideways = new Vector2(delta.x, delta.z).magnitude;
 
-        if (sideways > breakDistance || delta.y > liftDistance)
+        bool pulledPastLimit = sideways > breakDistance || delta.y > liftDistance;
+
+        if (pulledPastLimit)
         {
-            Release();
-            return;
+            if (pullingSince < 0f) pullingSince = Time.time;
+
+            // Only release after a sustained pull.
+            if (Time.time - pullingSince >= holdTime)
+            {
+                pullingSince = -1f;
+                Release();
+                return;
+            }
+        }
+        else
+        {
+            pullingSince = -1f;
         }
 
+        // Always pull the body back toward the hole while still held in.
         if (IsDriver())
             MoveBodySoProngIsAt(snapPosition);
     }
