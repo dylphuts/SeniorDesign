@@ -48,6 +48,13 @@ public class SlotSpawner : MonoBehaviour
     public Vector3 slotScale = new Vector3(0.005f, 0.005f, 0.005f);
     public List<SlotBlock> blocks = new List<SlotBlock>();
 
+    [Header("Auto Assign Connections settings")]
+    [Tooltip("Blocks with at least this many slots in one row are treated as terminal-strip rows. Smaller ones are rail pieces.")]
+    public int stripMinSlots = 20;
+    [Tooltip("Rail pieces whose Z differs by less than this fraction of the rail Z range are the same rail row.")]
+    [Range(0.0001f, 0.05f)]
+    public float railZTolerance = 0.002f;
+
     // Hole.row holds the NODE number: holes with the same number are electrically connected.
     public int NodeCount => slotsByNode.Count;
 
@@ -175,13 +182,26 @@ public class SlotSpawner : MonoBehaviour
     [ContextMenu("Log Block Summary")]
     void LogBlockSummary()
     {
-        for (int i = 0; i < blocks.Count; i++)
+        var order = new List<int>();
+        for (int i = 0; i < blocks.Count; i++) order.Add(i);
+        order.Sort((x, y) =>
         {
-            var b = blocks[i];
-            int slots = b.rows * b.columnsPerGroup * b.groups;
-            Debug.Log($"[{i}] {b.name} | {b.connection} | net '{b.netName}' | z {b.origin.z:F4} | " +
-                      $"rows {b.rows} x cols {b.columnsPerGroup} x groups {b.groups} = {slots} slots");
+            int c = blocks[x].origin.y.CompareTo(blocks[y].origin.y);
+            return c != 0 ? c : blocks[x].origin.z.CompareTo(blocks[y].origin.z);
+        });
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Blocks sorted by Y then Z:  name | mode | net | origin x,y,z | rows x cols x groups = slots");
+        foreach (int i in order)
+        {
+            var bl = blocks[i];
+            int slots = bl.rows * bl.columnsPerGroup * bl.groups;
+            sb.AppendLine($"  {bl.name} | {bl.connection} | net '{bl.netName}' | " +
+                          $"({bl.origin.x:F5}, {bl.origin.y:F5}, {bl.origin.z:F5}) | " +
+                          $"{bl.rows} x {bl.columnsPerGroup} x {bl.groups} = {slots}");
         }
+        Debug.Log(sb.ToString());
+        GUIUtility.systemCopyBuffer = sb.ToString(); // paste it straight into chat
     }
 
 #if UNITY_EDITOR
@@ -195,47 +215,58 @@ public class SlotSpawner : MonoBehaviour
     {
         UnityEditor.Undo.RecordObject(this, "Auto Assign Connections");
 
+        if (blocks.Count == 0) { Debug.LogWarning("Auto Assign: no blocks."); return; }
+
+        // Columns run along X, so rows differ along Y or Z. Pick whichever actually varies.
+        float yMin = float.MaxValue, yMax = float.MinValue, zMin = float.MaxValue, zMax = float.MinValue;
+        foreach (var bl in blocks)
+        {
+            yMin = Mathf.Min(yMin, bl.origin.y); yMax = Mathf.Max(yMax, bl.origin.y);
+            zMin = Mathf.Min(zMin, bl.origin.z); zMax = Mathf.Max(zMax, bl.origin.z);
+        }
+        bool useY = (yMax - yMin) > (zMax - zMin);
+        float keyRange = useY ? yMax - yMin : zMax - zMin;
+        System.Func<SlotBlock, float> key = bl => useY ? bl.origin.y : bl.origin.z;
+
+        Debug.Log($"Auto Assign: rows differ along {(useY ? "Y" : "Z")} (range {keyRange:F5}).");
+        if (keyRange < 1e-6f)
+        {
+            Debug.LogError("Auto Assign: every block has the same Y and Z origin, so rows can't be told apart. Check each block's Origin.");
+            return;
+        }
+
         var longRows = new List<int>();
         var shortBlocks = new List<int>();
         for (int i = 0; i < blocks.Count; i++)
         {
-            if (blocks[i].columnsPerGroup * blocks[i].groups >= 20) longRows.Add(i);
+            if (blocks[i].columnsPerGroup * blocks[i].groups >= stripMinSlots) longRows.Add(i);
             else shortBlocks.Add(i);
         }
 
-        longRows.Sort((a, b) => blocks[a].origin.z.CompareTo(blocks[b].origin.z));
-        shortBlocks.Sort((a, b) => blocks[a].origin.z.CompareTo(blocks[b].origin.z));
-
-        // Estimate the spacing between rows from the long rows.
-        float rowPitch = 0f;
-        for (int k = 1; k < longRows.Count; k++)
-        {
-            float gap = blocks[longRows[k]].origin.z - blocks[longRows[k - 1]].origin.z;
-            if (gap > 1e-5f && (rowPitch == 0f || gap < rowPitch)) rowPitch = gap;
-        }
-        float tolerance = rowPitch > 0f ? rowPitch * 0.5f : 0.004f;
+        longRows.Sort((x, y) => key(blocks[x]).CompareTo(key(blocks[y])));
+        shortBlocks.Sort((x, y) => key(blocks[x]).CompareTo(key(blocks[y])));
 
         int expectedNodes = 0;
 
-        // ---- Terminal strips ----
+        // ---- Terminal strips: split into two halves at the biggest gap (the center channel) ----
         if (longRows.Count >= 2)
         {
             int split = 1;
             float biggest = 0f;
             for (int k = 1; k < longRows.Count; k++)
             {
-                float gap = blocks[longRows[k]].origin.z - blocks[longRows[k - 1]].origin.z;
+                float gap = key(blocks[longRows[k]]) - key(blocks[longRows[k - 1]]);
                 if (gap > biggest) { biggest = gap; split = k; }
             }
 
             for (int k = 0; k < longRows.Count; k++)
             {
-                var b = blocks[longRows[k]];
+                var bl = blocks[longRows[k]];
                 bool lower = k < split;
                 string net = lower ? "StripsA" : "StripsB";
-                b.connection = ConnectionMode.SharedColumn;
-                b.netName = net;
-                b.name = $"{net}_row{(lower ? k : k - split)}";
+                bl.connection = ConnectionMode.SharedColumn;
+                bl.netName = net;
+                bl.name = $"{net}_row{(lower ? k : k - split)}";
             }
 
             int colsA = blocks[longRows[0]].columnsPerGroup * blocks[longRows[0]].groups;
@@ -243,39 +274,55 @@ public class SlotSpawner : MonoBehaviour
             expectedNodes += colsA + colsB;
 
             Debug.Log($"Strips: half A has {split} rows, half B has {longRows.Count - split} rows " +
-                      $"(biggest gap {biggest:F4} vs normal row spacing {rowPitch:F4}).");
+                      $"(biggest gap {biggest:F5}).");
         }
         else
         {
             Debug.LogWarning("Auto Assign: found fewer than 2 long rows, so strips were left alone.");
         }
 
-        // ---- Rails ----
-        int railCount = 0, inRail = 0;
-        float lastZ = 0f;
-        var railSizes = new List<int>();
+        // ---- Rails: pieces at (nearly) the same position along the row axis are one rail row ----
+        float tol = Mathf.Max(keyRange * railZTolerance, 1e-6f);
+
+        int railCount = 0;
+        float clusterStart = 0f;
+        var clusterSizes = new List<int>();
+        var clusterRows = new List<int>();
+        var clusterPos = new List<float>();
+        var clusterPerRow = new List<bool>();
+
         foreach (int i in shortBlocks)
         {
-            var b = blocks[i];
-            if (railCount == 0 || b.origin.z - lastZ > tolerance)
+            var bl = blocks[i];
+            float kv = key(bl);
+            if (railCount == 0 || kv - clusterStart > tol)
             {
                 railCount++;
-                inRail = 0;
-                railSizes.Add(0);
+                clusterStart = kv;
+                clusterSizes.Add(0);
+                clusterRows.Add(1);
+                clusterPos.Add(kv);
+                clusterPerRow.Add(false);
             }
-            lastZ = b.origin.z;
 
+            int c = railCount - 1;
             string net = "Rail" + railCount;
-            b.connection = ConnectionMode.WholeBlock;
-            b.netName = net;
-            b.name = $"{net}_{inRail++}";
-            railSizes[railCount - 1]++;
+            bool perRow = bl.rows > 1;
+
+            bl.connection = perRow ? ConnectionMode.PerRow : ConnectionMode.WholeBlock;
+            bl.netName = net;
+            bl.name = $"{net}_{clusterSizes[c]++}";
+            clusterRows[c] = Mathf.Max(clusterRows[c], perRow ? bl.rows : 1);
+            clusterPerRow[c] = clusterPerRow[c] || perRow;
         }
 
-        for (int k = 0; k < railSizes.Count; k++)
-            Debug.Log($"Rail{k + 1}: {railSizes[k]} blocks");
+        for (int c = 0; c < railCount; c++)
+        {
+            int nodes = clusterPerRow[c] ? clusterRows[c] : 1;
+            expectedNodes += nodes;
+            Debug.Log($"Rail{c + 1}: position {clusterPos[c]:F5}, {clusterSizes[c]} blocks, {nodes} node(s)");
+        }
 
-        expectedNodes += railCount;
         Debug.Log($"Auto Assign done. After pressing Play you should see 'SlotSpawner: {expectedNodes} nodes'.");
 
         UnityEditor.EditorUtility.SetDirty(this);
