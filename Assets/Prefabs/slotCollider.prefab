@@ -68,7 +68,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f5cd77343d6ca1949b1d2d7511848832, type: 2}
+  - {fileID: 2100000, guid: b33e016ab2cb4497ba21c0b68d57a51b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -126,3 +126,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hole
   row: 0
+  litColor: {r: 0, g: 1, b: 0, a: 1}

@@ -53,7 +53,7 @@ public class SlotSpawner : MonoBehaviour
 
     private readonly List<List<Hole>> slotsByNode = new List<List<Hole>>();
     private readonly Dictionary<string, int> nodeIds = new Dictionary<string, int>();
-    private readonly List<Hole> litHoles = new List<Hole>();
+    private readonly HashSet<int> litNodes = new HashSet<int>();
 
     // Awake (not Start) so the slots exist before CircuitManager.Start runs.
     void Awake()
@@ -74,7 +74,7 @@ public class SlotSpawner : MonoBehaviour
 
         slotsByNode.Clear();
         nodeIds.Clear();
-        litHoles.Clear();
+        litNodes.Clear();
 
         var parent = new GameObject("Slots").transform;
         parent.SetParent(breadboard, false);
@@ -140,22 +140,36 @@ public class SlotSpawner : MonoBehaviour
         if (old != null) DestroyImmediate(old.gameObject);
     }
 
-    // Turns off only the holes that were lit, instead of touching every hole.
-    public void ClearPower()
+    // Lights exactly the wanted nodes. Only nodes that changed are touched, so nothing flickers.
+    public void SetLitNodes(HashSet<int> wanted)
     {
-        foreach (var h in litHoles) h.SetGreen(false);
-        litHoles.Clear();
+        var toOff = new List<int>();
+        foreach (int n in litNodes)
+            if (!wanted.Contains(n)) toOff.Add(n);
+
+        foreach (int n in toOff)
+        {
+            foreach (var h in slotsByNode[n]) h.SetGreen(false);
+            litNodes.Remove(n);
+        }
+
+        foreach (int n in wanted)
+        {
+            if (n < 0 || n >= slotsByNode.Count) continue;
+            if (litNodes.Add(n))
+                foreach (var h in slotsByNode[n]) h.SetGreen(true);
+        }
     }
 
-    public void SetNodePowered(int node)
+    public void ClearPower()
     {
-        if (node < 0 || node >= slotsByNode.Count) return;
+        SetLitNodes(new HashSet<int>());
+    }
 
-        foreach (var h in slotsByNode[node])
-        {
-            h.SetGreen(true);
-            litHoles.Add(h);
-        }
+    [ContextMenu("Test Light Node 120")]
+    void TestLight()
+    {
+        SetLitNodes(new HashSet<int> { 120 });
     }
 
     [ContextMenu("Log Block Summary")]
