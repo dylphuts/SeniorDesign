@@ -4193,8 +4193,6 @@ MonoBehaviour:
     rows: 1
     columnsPerGroup: 5
     groups: 1
-  stripMinSlots: 20
-  railZTolerance: 0.002
 --- !u!1 &70236757
 GameObject:
   m_ObjectHideFlags: 0
@@ -24408,10 +24406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07136d9f038b6d842a1721032878a683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CircuitManager
-  slots: {fileID: 0}
+  slots: {fileID: 69223284}
   powerSource: {fileID: 0}
   allowReversedLED: 0
-  debugLog: 1
 --- !u!1 &494244465
 GameObject:
   m_ObjectHideFlags: 0
@@ -93491,6 +93488,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PositiveProng
       objectReference: {fileID: 0}
+    - target: {fileID: 7778486279753293798, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+      propertyPath: bodyRoot
+      value: 
+      objectReference: {fileID: 1829397032}
     m_RemovedComponents:
     - {fileID: 5345509117395138765, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
     m_RemovedGameObjects: []
@@ -105816,6 +105817,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NegativeProng
       objectReference: {fileID: 0}
+    - target: {fileID: 7778486279753293798, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+      propertyPath: bodyRoot
+      value: 
+      objectReference: {fileID: 1355820142}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

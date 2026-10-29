@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Prong : MonoBehaviour
@@ -6,7 +7,7 @@ public class Prong : MonoBehaviour
     public float breakDistance = 0.06f;     // sideways pull to escape
     public float liftDistance = 0.05f;      // upward pull to escape
     public float holdTime = 0.15f;          // must stay past the threshold this long
-    public float seatDepth = 0.02f;         // how far a prong can be pushed DOWN into the hole without issue
+    public float seatDepth = 0.02f;         // (currently unused)
 
     [Header("Snapping")]
     public float reSnapCooldown = 0.3f;
@@ -49,19 +50,17 @@ public class Prong : MonoBehaviour
     void OnTriggerEnter(Collider other) { TrySnap(other); }
     void OnTriggerStay(Collider other) { TrySnap(other); } // retries after cooldown
 
-    void TrySnap(Collider other)
+    // Can this prong snap right now (cooldown + rearm)?
+    bool IsArmed()
     {
-        if (snapped || Time.time < nextSnapTime) return;
-        if (other.GetComponentInParent<Hole>() == null) return;
+        if (Time.time < nextSnapTime) return false;
+        if (needsRearm && (transform.position - releasePos).magnitude < rearmDistance) return false;
+        return true;
+    }
 
-        // After a release, the prong must move away before it can snap again.
-        if (needsRearm)
-        {
-            if ((transform.position - releasePos).magnitude < rearmDistance) return;
-            needsRearm = false;
-        }
-
-        // Snap to the NEAREST hole, not the first one touched.
+    // Nearest hole within snapRadius, or null.
+    Hole FindNearestHole()
+    {
         Hole best = null;
         float bestDist = float.MaxValue;
         foreach (Collider c in Physics.OverlapSphere(transform.position, snapRadius,
@@ -72,7 +71,31 @@ public class Prong : MonoBehaviour
             float d = (h.transform.position - transform.position).sqrMagnitude;
             if (d < bestDist) { bestDist = d; best = h; }
         }
-        if (best != null) Snap(best);
+        return best;
+    }
+
+    // All-or-nothing: every prong on this body must have its own hole before any of them snap.
+    void TrySnap(Collider other)
+    {
+        if (snapped || other.GetComponentInParent<Hole>() == null) return;
+
+        var holes = new Hole[siblings.Length];
+        var used = new HashSet<Hole>();
+        for (int i = 0; i < siblings.Length; i++)
+        {
+            Prong p = siblings[i];
+            if (p.snapped || !p.IsArmed()) return;
+
+            holes[i] = p.FindNearestHole();
+            if (holes[i] == null || !used.Add(holes[i])) return; // no hole, or two prongs share one
+        }
+
+        for (int i = 0; i < siblings.Length; i++)
+        {
+            siblings[i].needsRearm = false;
+            siblings[i].Snap(holes[i]);
+        }
+        NotifyCircuit(); // once, after everything is seated
     }
 
     void Snap(Hole hole)
@@ -88,7 +111,7 @@ public class Prong : MonoBehaviour
             MoveBodySoProngIsAt(snapPosition);
 
         Debug.Log($"{bodyRoot.name}/{name} snapped into node {hole.row}");
-        NotifyCircuit();
+        // No NotifyCircuit here, TrySnap does it once.
     }
 
     // The first snapped prong on this body is the one that moves it.
@@ -136,8 +159,7 @@ public class Prong : MonoBehaviour
             // Only release after a sustained pull.
             if (Time.time - pullingSince >= holdTime)
             {
-                pullingSince = -1f;
-                Release();
+                ReleaseAll();
                 return;
             }
         }
@@ -151,16 +173,24 @@ public class Prong : MonoBehaviour
             MoveBodySoProngIsAt(snapPosition);
     }
 
+    // Pulling any prong out releases the whole body.
+    void ReleaseAll()
+    {
+        foreach (Prong p in siblings)
+            if (p.snapped) p.Release();
+        NotifyCircuit();
+    }
+
     void Release()
     {
         snapped = false;
         connectedHole = null;
+        pullingSince = -1f;
         nextSnapTime = Time.time + reSnapCooldown;
         releasePos = transform.position;
         needsRearm = true;
 
         Debug.Log($"{bodyRoot.name}/{name} released");
-        NotifyCircuit();
     }
 
     void NotifyCircuit()
