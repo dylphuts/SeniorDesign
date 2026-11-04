@@ -22,6 +22,7 @@ public class CircuitManager : MonoBehaviour
 
         Wire[] wires = FindObjectsByType<Wire>(FindObjectsSortMode.None);
         LEDcode[] leds = FindObjectsByType<LEDcode>(FindObjectsSortMode.None);
+        Transistor[] transistors = FindObjectsByType<Transistor>(FindObjectsSortMode.None);
 
         // Everything wired to each battery terminal.
         var pos = new HashSet<int>();
@@ -30,6 +31,25 @@ public class CircuitManager : MonoBehaviour
         {
             if (powerSource.TryGetPositiveRow(out int p)) Flood(p, wires, pos);
             if (powerSource.TryGetNegativeRow(out int n)) Flood(n, wires, neg);
+        }
+
+        // Check transistors and power their collector rows
+        bool changed1 = true;
+        while (changed1)
+        {
+            changed1 = false;
+
+            foreach (Transistor transistor in transistors)
+            {
+                if (transistor.TryGetRows(out int b, out int c, out int e))
+                {
+                    if (pos.Contains(b) && neg.Contains(e) && !pos.Contains(c))
+                    {
+                        Flood(c, wires, pos);
+                        changed1 = true;
+                    }
+                }
+            }
         }
 
         bool shorted = pos.Overlaps(neg);
@@ -41,6 +61,8 @@ public class CircuitManager : MonoBehaviour
         while (changed)
         {
             changed = false;
+
+
             foreach (LEDcode led in leds)
             {
                 if (led.TryGetRows(out int a, out int c) && lit.Contains(a) && !lit.Contains(c))
