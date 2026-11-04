@@ -3958,6 +3958,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2548469015527140698, guid: 5b70f4bb6ee1c4b77b0138ecc7e58ee5, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 62740529ed453144795ba173a9424700, type: 2}
     - target: {fileID: 7341865566372116369, guid: 5b70f4bb6ee1c4b77b0138ecc7e58ee5, type: 3}
       propertyPath: m_Name
       value: LED

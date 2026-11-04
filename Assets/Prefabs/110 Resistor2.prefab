@@ -172,6 +172,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+--- !u!114 &3168006100214363018 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7778486279753293798, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+  m_PrefabInstance: {fileID: 4613296580756106348}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 486442f9af66a4390a431879abd2d489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Prong
 --- !u!4 &9071713626982234213 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4458717247365796873, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
@@ -254,6 +265,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+--- !u!114 &3834502517667478224 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7778486279753293798, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+  m_PrefabInstance: {fileID: 6828688172119549238}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 486442f9af66a4390a431879abd2d489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Prong
 --- !u!4 &7144068009646993727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4458717247365796873, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
@@ -380,6 +402,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8f6cc483d39da452e83c0813ec07f5e8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7832107577039868392}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8f6cc483d39da452e83c0813ec07f5e8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8348436997646381470}
   m_SourcePrefab: {fileID: 100100000, guid: 8f6cc483d39da452e83c0813ec07f5e8, type: 3}
 --- !u!4 &8419328144798259581 stripped
 Transform:
@@ -527,3 +552,17 @@ MonoBehaviour:
         Min: 1
         Max: 1
   _resetScaleResponsivenessOnConstraintOvershoot: 0
+--- !u!114 &8348436997646381470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195408138509370311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b04b79a76cfbb4a42853c36f42a48f14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Resistor
+  legA: {fileID: 3168006100214363018}
+  legB: {fileID: 3834502517667478224}
