@@ -7,31 +7,47 @@ public class Transistor : MonoBehaviour
     public Prong collectorProng;
     public Prong emitterProng;
 
+    bool baseWasSnapped;
+    bool collectorWasSnapped;
+    bool emitterWasSnapped;
+
     void Awake()
     {
-        Prong[] prongs = GetComponentsInChildren<Prong>();
+        if (baseProng == null || collectorProng == null || emitterProng == null)
+        {
+            Prong[] prongs = GetComponentsInChildren<Prong>();
 
-        if (baseProng == null && prongs.Length >= 1)
-            baseProng = prongs[0];
+            if (prongs.Length >= 3)
+            {
+                baseProng = prongs[0];
+                collectorProng = prongs[1];
+                emitterProng = prongs[2];
+            }
+        }
+    }
 
-        if (collectorProng == null && prongs.Length >= 2)
-            collectorProng = prongs[1];
+    void Update()
+    {
+        if (baseProng != null && baseProng.IsSnapped && !baseWasSnapped)
+            Debug.Log("Transistor Base is in a hole.");
 
-        if (emitterProng == null && prongs.Length >= 3)
-            emitterProng = prongs[2];
+        if (collectorProng != null && collectorProng.IsSnapped && !collectorWasSnapped)
+            Debug.Log("Transistor Collector is in a hole.");
+
+        if (emitterProng != null && emitterProng.IsSnapped && !emitterWasSnapped)
+            Debug.Log("Transistor Emitter is in a hole.");
+
+        baseWasSnapped = baseProng != null && baseProng.IsSnapped;
+        collectorWasSnapped = collectorProng != null && collectorProng.IsSnapped;
+        emitterWasSnapped = emitterProng != null && emitterProng.IsSnapped;
     }
 
     public bool TryGetRows(out int baseRow, out int collectorRow, out int emitterRow)
     {
-        baseRow = -1;
-        collectorRow = -1;
-        emitterRow = -1;
+        baseRow = emitterRow = collectorRow = -1;
 
-        if (baseProng == null || collectorProng == null || emitterProng == null)
-            return false;
-
-        if (!baseProng.IsSnapped || !collectorProng.IsSnapped || !emitterProng.IsSnapped)
-            return false;
+        if (baseProng == null || collectorProng == null || emitterProng == null) return false;
+        if (!baseProng.IsSnapped || !collectorProng.IsSnapped || !emitterProng.IsSnapped) return false;
 
         baseRow = baseProng.Row;
         collectorRow = collectorProng.Row;
@@ -39,14 +55,5 @@ public class Transistor : MonoBehaviour
 
         return true;
     }
-
-    public bool IsFullyConnected()
-    {
-        return baseProng != null &&
-               collectorProng != null &&
-               emitterProng != null &&
-               baseProng.IsSnapped &&
-               collectorProng.IsSnapped &&
-               emitterProng.IsSnapped;
-    }
 }
+
