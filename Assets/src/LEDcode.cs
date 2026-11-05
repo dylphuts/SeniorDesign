@@ -5,6 +5,7 @@ public class LEDcode : MonoBehaviour
 {
     public Renderer ledRenderer;
     public Material noGlow;
+    public Material dimGlow;   // new
     public Material Glow;
 
     [Header("Legs (long leg = anode)")]
@@ -12,6 +13,7 @@ public class LEDcode : MonoBehaviour
     public Prong anodeProng;     // + leg
     [FormerlySerializedAs("negativeProng")]
     public Prong cathodeProng;   // - leg
+    public enum LedState { Off, Dim, Bright }
 
     void Awake()
     {
@@ -38,9 +40,19 @@ public class LEDcode : MonoBehaviour
         return true;
     }
 
+    public void SetState(LedState state)
+    {
+        if (ledRenderer == null) return;
+
+        switch (state)
+        {
+            case LedState.Off: ledRenderer.material = noGlow; break;
+            case LedState.Dim: ledRenderer.material = dimGlow; break;
+            case LedState.Bright: ledRenderer.material = Glow; break;
+        }
+    }
     public void SetLit(bool on)
     {
-        if (ledRenderer != null)
-            ledRenderer.material = on ? Glow : noGlow;
+        SetState(on ? LedState.Bright : LedState.Off);
     }
 }
