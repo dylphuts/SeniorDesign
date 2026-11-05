@@ -5,9 +5,7 @@ public class LEDcode : MonoBehaviour
 {
     public Renderer ledRenderer;
     public Material noGlow;
-    public Material dimGlow;
     public Material Glow;
-    public enum LedState { Off, Dim, Bright }
 
     [Header("Legs (long leg = anode)")]
     [FormerlySerializedAs("plusProng")]
@@ -39,20 +37,10 @@ public class LEDcode : MonoBehaviour
         cathodeRow = cathodeProng.Row;
         return true;
     }
-    public void SetState(LedState state)
-    {
-        if (ledRenderer == null) return;
-
-        switch (state)
-        {
-            case LedState.Off: ledRenderer.material = noGlow; break;
-            case LedState.Dim: ledRenderer.material = dimGlow; break;
-            case LedState.Bright: ledRenderer.material = Glow; break;
-        }
-    }
 
     public void SetLit(bool on)
     {
-        SetState(on ? LedState.Bright : LedState.Off);
+        if (ledRenderer != null)
+            ledRenderer.material = on ? Glow : noGlow;
     }
 }
