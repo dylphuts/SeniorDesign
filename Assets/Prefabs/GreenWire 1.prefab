@@ -160,6 +160,8 @@ MonoBehaviour:
   holdTime: 0.15
   seatDepth: 0.02
   reSnapCooldown: 0.3
+  snapRadius: 0.01
+  rearmDistance: 0.02
   bodyRoot: {fileID: 2326513812289476979}
 --- !u!1 &2330442611236265585
 GameObject:
@@ -175,7 +177,7 @@ GameObject:
   - component: {fileID: 6246828087004209405}
   - component: {fileID: 86009754723926338}
   m_Layer: 0
-  m_Name: WireRoot
+  m_Name: GreenWire 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -333,9 +335,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.028976917
-  m_Height: 0.39885092
+  m_Height: 0.8795924
   m_Direction: 0
-  m_Center: {x: -2.82, y: 0.62, z: 2.92}
+  m_Center: {x: -2.5796292, y: 0.62, z: 2.92}
 --- !u!1 &4414069198601659161
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,7 +463,7 @@ Transform:
   m_GameObject: {fileID: 5074057725328275574}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.6451645, y: 0.5799999, z: 2.9197133}
+  m_LocalPosition: {x: -2.1597, y: 0.5799999, z: 2.9197133}
   m_LocalScale: {x: -0.05, y: -0.05, z: -0.05}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -591,6 +593,8 @@ MonoBehaviour:
   holdTime: 0.15
   seatDepth: 0.02
   reSnapCooldown: 0.3
+  snapRadius: 0.01
+  rearmDistance: 0.02
   bodyRoot: {fileID: 2326513812289476979}
 --- !u!1 &5812686946398249728
 GameObject:
@@ -624,8 +628,8 @@ Transform:
   m_GameObject: {fileID: 5812686946398249728}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: -0.5, z: 0.5, w: 0.5}
-  m_LocalPosition: {x: -2.820094, y: 0.62829995, z: 2.9197133}
-  m_LocalScale: {x: -0.05, y: 0.2, z: -0.05}
+  m_LocalPosition: {x: -2.5781, y: 0.62829995, z: 2.9197133}
+  m_LocalScale: {x: -0.05, y: 0.441998, z: -0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2326513812289476979}
@@ -663,7 +667,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a6b8f833470f24340b44417b6a2f98ec, type: 2}
+  - {fileID: 2100000, guid: fcfaa40a650f34afda8bae015278f84f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

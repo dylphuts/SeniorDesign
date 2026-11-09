@@ -155,11 +155,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 486442f9af66a4390a431879abd2d489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Prong
-  breakDistance: 0.02
+  breakDistance: 0.1
   liftDistance: 0.01
   holdTime: 0.15
   seatDepth: 0.02
   reSnapCooldown: 0.3
-  snapRadius: 0.1
+  snapRadius: 0.5
   rearmDistance: 0.05
   bodyRoot: {fileID: 0}
