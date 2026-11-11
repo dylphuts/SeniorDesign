@@ -159,6 +159,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Prong1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7778486279753293798, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+      propertyPath: bodyRoot
+      value: 
+      objectReference: {fileID: 6810296471711923483}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -438,10 +442,10 @@ MonoBehaviour:
         Min: 0
         Max: 0
     ZAxis:
-      ConstrainAxis: 1
+      ConstrainAxis: 0
       AxisRange:
-        Min: 0
-        Max: 0
+        Min: -90
+        Max: -90
   _scaleConstraints:
     ConstraintsAreRelative: 1
     XAxis:
@@ -529,6 +533,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Prong1
       objectReference: {fileID: 0}
+    - target: {fileID: 7778486279753293798, guid: 7649efda5fe8c44ebbf33adc5b86d612, type: 3}
+      propertyPath: bodyRoot
+      value: 
+      objectReference: {fileID: 6810296471711923483}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

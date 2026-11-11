@@ -160,6 +160,6 @@ MonoBehaviour:
   holdTime: 0.15
   seatDepth: 0.02
   reSnapCooldown: 0.3
-  snapRadius: 0.5
+  snapRadius: 0.75
   rearmDistance: 0.05
   bodyRoot: {fileID: 0}
